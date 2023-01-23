@@ -3,16 +3,17 @@ package controllers
 import (
 	"strconv"
 
-	"github.com/DiarCode/todo-go-api/pkg/dto"
-	"github.com/DiarCode/todo-go-api/pkg/helpers"
-	"github.com/DiarCode/todo-go-api/pkg/models"
+	"github.com/DiarCode/todo-go-api/src/config/database"
+	"github.com/DiarCode/todo-go-api/src/dto"
+	"github.com/DiarCode/todo-go-api/src/helpers"
+	"github.com/DiarCode/todo-go-api/src/models"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
 
 func GetAllTodos(c *fiber.Ctx) error {
 	todos := []Todo{}
-	db.Model(&models.Todo{}).Find(&todos)
+	database.DB.Model(&models.Todo{}).Find(&todos)
 
 	return helpers.SendSuccessJSON(c, todos)
 }
@@ -30,7 +31,7 @@ func GetTodoById(c *fiber.Ctx) error {
 
 	todo := Todo{}
 	query := Todo{ID: id}
-	err = db.First(&todo, &query).Error
+	err = database.DB.First(&todo, &query).Error
 
 	if err == gorm.ErrRecordNotFound {
 		return c.JSON(fiber.Map{
@@ -52,13 +53,13 @@ func CreateTodo(c *fiber.Ctx) error {
 	}
 
 	newTodo := Todo{
-		UserRefer:   json.UserId,
+		UserId:      json.UserId,
 		Title:       json.Title,
 		Description: json.Description,
 		Completed:   false,
 	}
 
-	err := db.Create(&newTodo).Error
+	err := database.DB.Create(&newTodo).Error
 	if err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
@@ -82,7 +83,7 @@ func DeleteTodoById(c *fiber.Ctx) error {
 		ID: id,
 	}
 
-	err = db.First(&foundTodo, &query).Error
+	err = database.DB.First(&foundTodo, &query).Error
 	if err == gorm.ErrRecordNotFound {
 		return c.JSON(fiber.Map{
 			"code":    400,
@@ -90,6 +91,6 @@ func DeleteTodoById(c *fiber.Ctx) error {
 		})
 	}
 
-	db.Delete(&foundTodo)
+	database.DB.Delete(&foundTodo)
 	return helpers.SendSuccessJSON(c, nil)
 }

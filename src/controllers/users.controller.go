@@ -3,9 +3,10 @@ package controllers
 import (
 	"strconv"
 
-	"github.com/DiarCode/todo-go-api/pkg/dto"
-	"github.com/DiarCode/todo-go-api/pkg/helpers"
-	"github.com/DiarCode/todo-go-api/pkg/models"
+	"github.com/DiarCode/todo-go-api/src/config/database"
+	"github.com/DiarCode/todo-go-api/src/dto"
+	"github.com/DiarCode/todo-go-api/src/helpers"
+	"github.com/DiarCode/todo-go-api/src/models"
 	"github.com/badoux/checkmail"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -13,7 +14,7 @@ import (
 
 func GetAllUsers(c *fiber.Ctx) error {
 	users := []User{}
-	db.Model(&models.User{}).Find(&users)
+	database.DB.Model(&models.User{}).Preload("Todos").Find(&users)
 
 	return helpers.SendSuccessJSON(c, users)
 }
@@ -31,7 +32,7 @@ func GetUserById(c *fiber.Ctx) error {
 
 	user := User{}
 	query := User{ID: id}
-	err = db.First(&user, &query).Error
+	err = database.DB.First(&user, &query).Error
 
 	if err == gorm.ErrRecordNotFound {
 		return c.JSON(fiber.Map{
@@ -67,7 +68,7 @@ func CreateUser(c *fiber.Ctx) error {
 
 	found := User{}
 	query := User{Email: json.Email}
-	err = db.First(&found, &query).Error
+	err = database.DB.First(&found, &query).Error
 	if err != gorm.ErrRecordNotFound {
 		return c.JSON(fiber.Map{
 			"code":    400,
@@ -75,7 +76,7 @@ func CreateUser(c *fiber.Ctx) error {
 		})
 	}
 
-	db.Create(&newUser)
+	database.DB.Create(&newUser)
 
 	return c.JSON(fiber.Map{
 		"code":    200,
@@ -100,7 +101,7 @@ func DeleteUserById(c *fiber.Ctx) error {
 		ID: id,
 	}
 
-	err = db.First(&user, &query).Error
+	err = database.DB.First(&user, &query).Error
 	if err == gorm.ErrRecordNotFound {
 		return c.JSON(fiber.Map{
 			"code":    400,
@@ -108,7 +109,7 @@ func DeleteUserById(c *fiber.Ctx) error {
 		})
 	}
 
-	db.Model(&user).Association("Todos").Delete()
-	db.Delete(&user)
+	database.DB.Model(&user).Association("Todos").Delete()
+	database.DB.Delete(&user)
 	return helpers.SendSuccessJSON(c, nil)
 }

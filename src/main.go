@@ -5,8 +5,8 @@ package main
 import (
 	"log"
 
-	"github.com/DiarCode/todo-go-api/pkg/config/database/postgres"
-	"github.com/DiarCode/todo-go-api/pkg/config/routes"
+	"github.com/DiarCode/todo-go-api/src/config/database"
+	"github.com/DiarCode/todo-go-api/src/config/routes"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/joho/godotenv"
@@ -27,7 +27,7 @@ func main() {
 
 	routes.InitRoutes(app)
 
-	postgres.ConnectDB()
+	database.ConnectDB()
 
 	log.Fatal(app.Listen(":8080"))
 }

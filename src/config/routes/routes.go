@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github.com/DiarCode/todo-go-api/pkg/controllers"
+	"github.com/DiarCode/todo-go-api/src/controllers"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -18,8 +18,8 @@ func InitRoutes(app *fiber.App) {
 
 	userRouter := router.Group("/users")
 	userRouter.Get("/", controllers.GetAllUsers)
-	todoRouter.Post("/", controllers.CreateUser)
-	todoRouter.Get("/:id", controllers.GetUserById)
-	todoRouter.Delete("/:id", controllers.DeleteUserById)
+	userRouter.Post("/", controllers.CreateUser)
+	userRouter.Get("/:id", controllers.GetUserById)
+	userRouter.Delete("/:id", controllers.DeleteUserById)
 
 }
