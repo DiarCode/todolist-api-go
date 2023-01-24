@@ -24,10 +24,7 @@ func GetUserById(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(param)
 
 	if err != nil {
-		return c.JSON(fiber.Map{
-			"code":    400,
-			"message": "Invalid ID Format",
-		})
+		return helpers.SendMessageWithStatus(c, "Invalid ID Format", 400)
 	}
 
 	user := User{}
@@ -35,10 +32,7 @@ func GetUserById(c *fiber.Ctx) error {
 	err = database.DB.First(&user, &query).Error
 
 	if err == gorm.ErrRecordNotFound {
-		return c.JSON(fiber.Map{
-			"code":    404,
-			"message": "User not found",
-		})
+		return helpers.SendMessageWithStatus(c, "User not found", 404)
 	}
 
 	return helpers.SendSuccessJSON(c, user)
@@ -47,42 +41,31 @@ func GetUserById(c *fiber.Ctx) error {
 func CreateUser(c *fiber.Ctx) error {
 	json := new(dto.CreateUserDto)
 	if err := c.BodyParser(json); err != nil {
-		return c.JSON(fiber.Map{
-			"code":    400,
-			"message": "Invalid JSON",
-		})
+		return helpers.SendMessageWithStatus(c, "Invalid JSON", 400)
 	}
+
 	password := helpers.HashPassword([]byte(json.Password))
 	err := checkmail.ValidateFormat(json.Email)
 	if err != nil {
-		return c.JSON(fiber.Map{
-			"code":    400,
-			"message": "Invalid Email Address",
-		})
+		return helpers.SendMessageWithStatus(c, "Invalid Email Address", 400)
 	}
 
 	newUser := User{
 		Password: password,
 		Email:    json.Email,
+		Name:     json.Name,
 	}
 
 	found := User{}
 	query := User{Email: json.Email}
 	err = database.DB.First(&found, &query).Error
 	if err != gorm.ErrRecordNotFound {
-		return c.JSON(fiber.Map{
-			"code":    400,
-			"message": "User already exists",
-		})
+		return helpers.SendMessageWithStatus(c, "User already exists", 400)
 	}
 
 	database.DB.Create(&newUser)
 
-	return c.JSON(fiber.Map{
-		"code":    200,
-		"message": "sucess",
-		"data":    newUser,
-	})
+	return helpers.SendSuccessJSON(c, newUser)
 }
 
 func DeleteUserById(c *fiber.Ctx) error {
@@ -90,10 +73,7 @@ func DeleteUserById(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(param)
 
 	if err != nil {
-		return c.JSON(fiber.Map{
-			"code":    400,
-			"message": "Invalid ID format",
-		})
+		return helpers.SendMessageWithStatus(c, "Invalid ID format", 400)
 	}
 
 	user := User{}
@@ -103,10 +83,7 @@ func DeleteUserById(c *fiber.Ctx) error {
 
 	err = database.DB.First(&user, &query).Error
 	if err == gorm.ErrRecordNotFound {
-		return c.JSON(fiber.Map{
-			"code":    400,
-			"message": "User not found",
-		})
+		return helpers.SendMessageWithStatus(c, "User not found", 400)
 	}
 
 	database.DB.Model(&user).Association("Todos").Delete()

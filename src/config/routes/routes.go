@@ -28,4 +28,8 @@ func InitRoutes(app *fiber.App) {
 	userRouter.Get("/:id", controllers.GetUserById)
 	userRouter.Delete("/:id", controllers.DeleteUserById)
 
+	authRouter := router.Group("/auth")
+	authRouter.Post("/login", controllers.Login)
+	authRouter.Post("/signup", controllers.Signup)
+
 }
