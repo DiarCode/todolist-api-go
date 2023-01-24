@@ -12,8 +12,7 @@ func InitRoutes(app *fiber.App) {
 	router := app.Group("api/v1")
 
 	todoRouter := router.Group("/todos")
-	todoRouter.Use(middleware.AuthMiddleware)
-	todoRouter.Get("/", controllers.GetAllTodos)
+	todoRouter.Get("/", middleware.AuthMiddleware(), controllers.GetAllTodos)
 	todoRouter.Post("/", controllers.CreateTodo)
 	todoRouter.Get("/:id", controllers.GetTodoById)
 	todoRouter.Delete("/:id", controllers.DeleteTodoById)

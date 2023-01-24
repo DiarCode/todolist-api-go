@@ -34,7 +34,7 @@ func AuthMiddleware() fiber.Handler {
 
 		tkn, err := jwt.ParseWithClaims(token, claims,
 			func(t *jwt.Token) (interface{}, error) {
-				return jwtKey, nil
+				return []byte(jwtKey), nil
 			})
 
 		if err != nil {
@@ -42,13 +42,13 @@ func AuthMiddleware() fiber.Handler {
 				return helpers.SendMessageWithStatus(c, "Unautharized", 401)
 			}
 
-			return helpers.SendMessageWithStatus(c, "Bad request", 404)
+			return helpers.SendMessageWithStatus(c, err.Error(), 404)
 		}
 
 		if !tkn.Valid {
 			return helpers.SendMessageWithStatus(c, "Unautharized", 401)
 		}
 
-		return helpers.SendMessageWithStatus(c, "Unautharized", 401)
+		return nil
 	}
 }
