@@ -11,14 +11,14 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetAllTodos(c *fiber.Ctx) error {
-	todos := []Todo{}
-	database.DB.Model(&models.Todo{}).Find(&todos)
+func GetAllTodoCategories(c *fiber.Ctx) error {
+	categories := []TodoCategory{}
+	database.DB.Model(&models.TodoCategory{}).Find(&categories)
 
-	return helpers.SendSuccessJSON(c, todos)
+	return helpers.SendSuccessJSON(c, categories)
 }
 
-func GetTodoById(c *fiber.Ctx) error {
+func GetTodoCategoryById(c *fiber.Ctx) error {
 	param := c.Params("id")
 	id, err := strconv.Atoi(param)
 
@@ -29,22 +29,22 @@ func GetTodoById(c *fiber.Ctx) error {
 		})
 	}
 
-	todo := Todo{}
-	query := Todo{ID: id}
-	err = database.DB.First(&todo, &query).Error
+	category := TodoCategory{}
+	query := TodoCategory{ID: id}
+	err = database.DB.First(&category, &query).Error
 
 	if err == gorm.ErrRecordNotFound {
 		return c.JSON(fiber.Map{
 			"code":    404,
-			"message": "Todo not found",
+			"message": "Todo category not found",
 		})
 	}
 
-	return helpers.SendSuccessJSON(c, todo)
+	return helpers.SendSuccessJSON(c, category)
 }
 
-func CreateTodo(c *fiber.Ctx) error {
-	json := new(dto.CreateTodoDto)
+func CreateTodoCategory(c *fiber.Ctx) error {
+	json := new(dto.CreateTodoCategoryDto)
 	if err := c.BodyParser(json); err != nil {
 		return c.JSON(fiber.Map{
 			"code":    400,
@@ -52,21 +52,20 @@ func CreateTodo(c *fiber.Ctx) error {
 		})
 	}
 
-	newTodo := Todo{
-		UserId:    json.UserId,
-		Title:     json.Title,
-		Completed: false,
+	newCategory := TodoCategory{
+		Value: json.Value,
+		Color: json.Color,
 	}
 
-	err := database.DB.Create(&newTodo).Error
+	err := database.DB.Create(&newCategory).Error
 	if err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 
-	return helpers.SendSuccessJSON(c, newTodo)
+	return helpers.SendSuccessJSON(c, newCategory)
 }
 
-func DeleteTodoById(c *fiber.Ctx) error {
+func DeleteTodoCategoryById(c *fiber.Ctx) error {
 	param := c.Params("id")
 	id, err := strconv.Atoi(param)
 
@@ -77,19 +76,19 @@ func DeleteTodoById(c *fiber.Ctx) error {
 		})
 	}
 
-	foundTodo := Todo{}
-	query := Todo{
+	foundCategory := TodoCategory{}
+	query := TodoCategory{
 		ID: id,
 	}
 
-	err = database.DB.First(&foundTodo, &query).Error
+	err = database.DB.First(&foundCategory, &query).Error
 	if err == gorm.ErrRecordNotFound {
 		return c.JSON(fiber.Map{
 			"code":    400,
-			"message": "Todo not found",
+			"message": "Todo category not found",
 		})
 	}
 
-	database.DB.Delete(&foundTodo)
+	database.DB.Delete(&foundCategory)
 	return helpers.SendSuccessJSON(c, nil)
 }

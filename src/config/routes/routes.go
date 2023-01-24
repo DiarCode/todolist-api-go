@@ -16,6 +16,12 @@ func InitRoutes(app *fiber.App) {
 	todoRouter.Get("/:id", controllers.GetTodoById)
 	todoRouter.Delete("/:id", controllers.DeleteTodoById)
 
+	todoCategoryRouter := router.Group("/todos-category")
+	todoCategoryRouter.Get("/", controllers.GetAllTodoCategories)
+	todoCategoryRouter.Post("/", controllers.CreateTodoCategory)
+	todoCategoryRouter.Get("/:id", controllers.GetTodoCategoryById)
+	todoCategoryRouter.Delete("/:id", controllers.DeleteTodoCategoryById)
+
 	userRouter := router.Group("/users")
 	userRouter.Get("/", controllers.GetAllUsers)
 	userRouter.Post("/", controllers.CreateUser)

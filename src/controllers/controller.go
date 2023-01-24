@@ -5,4 +5,5 @@ import (
 )
 
 type Todo models.Todo
+type TodoCategory models.TodoCategory
 type User models.User
