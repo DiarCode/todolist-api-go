@@ -13,17 +13,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type Token struct {
-	Token string `json:"token"`
-}
-
-type Claims struct {
-	ID    int    `json:"id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
-	jwt.StandardClaims
-}
-
 func Login(c *fiber.Ctx) error {
 	credentials := new(dto.LoginDto)
 	if err := c.BodyParser(credentials); err != nil {

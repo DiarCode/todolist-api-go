@@ -7,3 +7,5 @@ import (
 type Todo models.Todo
 type TodoCategory models.TodoCategory
 type User models.User
+type Token models.Token
+type Claims models.Claims
