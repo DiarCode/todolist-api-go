@@ -1,6 +1,8 @@
 package routes
 
 import (
+	"log"
+
 	"github.com/DiarCode/todo-go-api/src/controllers"
 	"github.com/gofiber/fiber/v2"
 )
@@ -50,5 +52,7 @@ func InitRoutes(app *fiber.App) {
 	userTowatchRouter.Get("/", controllers.GetAllTowatchesByCategory)
 	userTowatchRouter.Post("/", controllers.AssignTowatchToCategory)
 	userTowatchRouter.Put("/", controllers.RemoveTowatchFromCategory)
+
+	log.Println("")
 
 }
