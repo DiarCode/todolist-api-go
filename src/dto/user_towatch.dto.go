@@ -10,3 +10,9 @@ type AssignTowatchToCategoryDto struct {
 	UserID     int `json:"user_id"`
 	CategoryID int `json:"category_id"`
 }
+
+type RemoveTowatchFromCategoryDto struct {
+	TowatchID  int `json:"towatch_id"`
+	UserID     int `json:"user_id"`
+	CategoryID int `json:"category_id"`
+}
