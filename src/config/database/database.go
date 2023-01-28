@@ -24,7 +24,14 @@ func ConnectDB() {
 	log.Println("Connected to database!")
 	log.Println("Running migrations")
 
-	err = DB.AutoMigrate(&models.User{}, &models.Todo{})
+	err = DB.AutoMigrate(
+		&models.User{},
+		&models.Todo{},
+		&models.TodoCategory{},
+		&models.UserTowatch{},
+		&models.Towatch{},
+		&models.TowatchCategory{},
+	)
 
 	if err != nil {
 		log.Fatal("Failed to connect to migrate! \n", err)
