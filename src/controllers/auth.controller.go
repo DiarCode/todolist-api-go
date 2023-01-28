@@ -27,9 +27,7 @@ func Login(c *fiber.Ctx) error {
 		return helpers.SendMessageWithStatus(c, "User not found", 404)
 	}
 
-	passwordsMatch := helpers.ComparePasswords(user.Password, []byte(credentials.Password))
-
-	if !passwordsMatch {
+	if !helpers.ComparePasswords(user.Password, credentials.Password) {
 		return helpers.SendMessageWithStatus(c, "Passwords does not match", 404)
 	}
 
@@ -46,7 +44,7 @@ func Login(c *fiber.Ctx) error {
 
 	jwtKey := os.Getenv("JWT_KEY")
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(jwtKey)
+	tokenString, err := token.SignedString([]byte(jwtKey))
 
 	sendToken := &Token{
 		Token: tokenString,
