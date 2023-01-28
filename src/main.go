@@ -13,7 +13,7 @@ import (
 // 		POSTGRES_DSN = "host=localhost port=5432 user=postgres password=password dbname=gotodo_db sslmode=disable"
 
 // 		# Надо сделать перед запуском
-// 		# 1. Создать .env файл в корнивой директории (там где go.mod)
+// 		# 1. Создать .env файл в корневой директории (там где go.mod)
 // 		# 2. Засунуть туда POSTGRES_DSN, но изменить на свои парамметры (скопировать прям как сверху)
 
 // 		# Запуск проекта
