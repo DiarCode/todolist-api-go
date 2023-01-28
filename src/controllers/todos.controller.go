@@ -84,9 +84,10 @@ func CreateTodo(c *fiber.Ctx) error {
 	}
 
 	newTodo := Todo{
-		UserId:   json.UserId,
-		Title:    json.Title,
-		Priority: json.Priority,
+		UserId:     json.UserId,
+		Title:      json.Title,
+		Priority:   json.Priority,
+		CategoryId: json.CategoryId,
 	}
 
 	err := database.DB.Create(&newTodo).Error
