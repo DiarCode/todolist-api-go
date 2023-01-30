@@ -46,7 +46,10 @@ func Login(c *fiber.Ctx) error {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(jwtKey))
 
-	sendToken := &Token{
+	response := &TokenResponse{
+		ID:    user.ID,
+		Name:  user.Name,
+		Email: user.Email,
 		Token: tokenString,
 	}
 
@@ -54,7 +57,7 @@ func Login(c *fiber.Ctx) error {
 		return helpers.SendMessageWithStatus(c, "Auth error (token creation)", 500)
 	}
 
-	return helpers.SendSuccessJSON(c, sendToken)
+	return helpers.SendSuccessJSON(c, response)
 }
 
 func Signup(c *fiber.Ctx) error {
