@@ -2,7 +2,10 @@ package models
 
 import "github.com/dgrijalva/jwt-go"
 
-type Token struct {
+type TokenResponse struct {
+	ID    int    `json:"user_id"`
+	Email string `json:"email"`
+	Name  string `json:"name"`
 	Token string `json:"token"`
 }
 

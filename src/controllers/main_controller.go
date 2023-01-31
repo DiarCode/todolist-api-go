@@ -8,7 +8,7 @@ import (
 type Todo models.Todo
 type TodoCategory models.TodoCategory
 type User models.User
-type Token models.Token
+type TokenResponse models.TokenResponse
 type Claims models.Claims
 type Towatch models.Towatch
 type TowatchCategory models.TowatchCategory
