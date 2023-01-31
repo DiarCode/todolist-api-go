@@ -23,12 +23,46 @@ func GetAllTodos(c *fiber.Ctx) error {
 	if err != nil {
 		return c.JSON(fiber.Map{
 			"code":    400,
-			"message": "Provide user id in params Format",
+			"message": "Provide user id in proper params",
 		})
 	}
 
 	todos := []Todo{}
 	database.DB.Where("user_id = ?", userId).Find(&todos)
+
+	return helpers.SendSuccessJSON(c, todos)
+}
+
+func GetTodosByCategory(c *fiber.Ctx) error {
+	category_param := c.Params("id")
+	user_param := c.Query("user")
+
+	if user_param == "" {
+		return c.JSON(fiber.Map{
+			"code":    400,
+			"message": "Provide user id in params",
+		})
+	}
+
+	userId, err := strconv.Atoi(user_param)
+	if err != nil {
+		return c.JSON(fiber.Map{
+			"code":    400,
+			"message": "Provide user id in proper params",
+		})
+	}
+
+	categoryId, err := strconv.Atoi(category_param)
+	if err != nil {
+		return c.JSON(fiber.Map{
+			"code":    400,
+			"message": "Provide category id in proper format",
+		})
+	}
+
+	todos := []Todo{}
+	query := Todo{CategoryId: categoryId, UserId: userId}
+	database.DB.Find(&todos, query)
 
 	return helpers.SendSuccessJSON(c, todos)
 }
@@ -56,22 +90,6 @@ func GetTodoById(c *fiber.Ctx) error {
 	}
 
 	return helpers.SendSuccessJSON(c, todo)
-}
-
-func GetTodoByCategory(c *fiber.Ctx) error {
-	json := new(dto.TodoByCategoryDto)
-	if err := c.BodyParser(json); err != nil {
-		return c.JSON(fiber.Map{
-			"code":    400,
-			"message": "Invalid JSON",
-		})
-	}
-
-	todos := []Todo{}
-	query := Todo{CategoryId: json.CategoryId, UserId: json.UserId}
-	database.DB.Find(&todos, &query)
-
-	return helpers.SendSuccessJSON(c, todos)
 }
 
 func CreateTodo(c *fiber.Ctx) error {
