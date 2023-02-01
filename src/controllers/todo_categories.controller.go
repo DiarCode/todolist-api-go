@@ -60,31 +60,6 @@ func GetTodoCategoryById(c *fiber.Ctx) error {
 	return helpers.SendSuccessJSON(c, category)
 }
 
-func GetTodoCategoriesByUserId(c *fiber.Ctx) error {
-	param := c.Params("id")
-	id, err := strconv.Atoi(param)
-
-	if err != nil {
-		return c.JSON(fiber.Map{
-			"code":    400,
-			"message": "Invalid ID Format",
-		})
-	}
-
-	categories := []TodoCategory{}
-	query := TodoCategory{UserId: id}
-	err = database.DB.Find(&categories, &query).Error
-
-	if err == gorm.ErrRecordNotFound {
-		return c.JSON(fiber.Map{
-			"code":    404,
-			"message": "Todo category not found",
-		})
-	}
-
-	return helpers.SendSuccessJSON(c, categories)
-}
-
 func CreateTodoCategory(c *fiber.Ctx) error {
 	json := new(dto.CreateTodoCategoryDto)
 	if err := c.BodyParser(json); err != nil {

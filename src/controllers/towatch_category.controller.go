@@ -6,14 +6,30 @@ import (
 	"github.com/DiarCode/todo-go-api/src/config/database"
 	"github.com/DiarCode/todo-go-api/src/dto"
 	"github.com/DiarCode/todo-go-api/src/helpers"
-	"github.com/DiarCode/todo-go-api/src/models"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
 
 func GetAllTowatchCategories(c *fiber.Ctx) error {
-	categories := []TowatchCategory{}
-	database.DB.Model(&models.TowatchCategory{}).Find(&categories)
+	user_param := c.Query("user")
+	if user_param == "" {
+		return c.JSON(fiber.Map{
+			"code":    400,
+			"message": "Provide user id in params",
+		})
+	}
+
+	userId, err := strconv.Atoi(user_param)
+	if err != nil {
+		return c.JSON(fiber.Map{
+			"code":    400,
+			"message": "Provide user id in params",
+		})
+	}
+
+	categories := []TodoCategory{}
+	query := TodoCategory{UserId: userId}
+	database.DB.Find(&categories, query)
 
 	return helpers.SendSuccessJSON(c, categories)
 }
@@ -53,8 +69,9 @@ func CreateTowatchCategory(c *fiber.Ctx) error {
 	}
 
 	newCategory := TowatchCategory{
-		Value: json.Value,
-		Color: json.Color,
+		Value:  json.Value,
+		Color:  json.Color,
+		UserId: json.UserId,
 	}
 
 	err := database.DB.Create(&newCategory).Error

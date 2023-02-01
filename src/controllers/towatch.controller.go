@@ -18,6 +18,40 @@ func GetAllTowatch(c *fiber.Ctx) error {
 	return helpers.SendSuccessJSON(c, towatches)
 }
 
+func GetTowatchesByCategory(c *fiber.Ctx) error {
+	category_param := c.Params("id")
+	user_param := c.Query("user")
+
+	if user_param == "" {
+		return c.JSON(fiber.Map{
+			"code":    400,
+			"message": "Provide user id in params",
+		})
+	}
+
+	userId, err := strconv.Atoi(user_param)
+	if err != nil {
+		return c.JSON(fiber.Map{
+			"code":    400,
+			"message": "Provide user id in proper params",
+		})
+	}
+
+	categoryId, err := strconv.Atoi(category_param)
+	if err != nil {
+		return c.JSON(fiber.Map{
+			"code":    400,
+			"message": "Provide category id in proper format",
+		})
+	}
+
+	userTowatch := UserTowatch{}
+	query := UserTowatch{TowatchCategoryID: categoryId, UserID: userId}
+	database.DB.Find(&userTowatch, query).Preload("Towatches")
+
+	return helpers.SendSuccessJSON(c, userTowatch.Towatches)
+}
+
 func GetTowatchById(c *fiber.Ctx) error {
 	param := c.Params("id")
 	id, err := strconv.Atoi(param)
