@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"github.com/DiarCode/todo-go-api/src/controllers"
-	"github.com/DiarCode/todo-go-api/src/middleware"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -14,22 +13,22 @@ func InitRoutes(app *fiber.App) {
 	router := app.Group("api/v1")
 
 	todoRouter := router.Group("/todos")
-	// todoRouter.Get("/", middleware.AuthMiddleware(), controllers.GetAllTodos)
-	todoRouter.Get("/", middleware.AuthMiddleware(), controllers.GetAllTodos) // Provide user in param ?user={id}
+	todoRouter.Get("/", controllers.GetAllTodos)
+	todoRouter.Get("/category/:id", controllers.GetTodosByCategory)
 	todoRouter.Post("/", controllers.CreateTodo)
 	todoRouter.Get("/:id", controllers.GetTodoById)
 	todoRouter.Delete("/:id", controllers.DeleteTodoById)
 	todoRouter.Put("/complete/:id", controllers.CompleteTodoById)
 
-	todoCategoryRouter := router.Group("/todos-category")
+	todoCategoryRouter := router.Group("/todo-category")
 	todoCategoryRouter.Get("/", controllers.GetAllTodoCategories)
 	todoCategoryRouter.Post("/", controllers.CreateTodoCategory)
 	todoCategoryRouter.Get("/:id", controllers.GetTodoCategoryById)
-	todoCategoryRouter.Get("/user/:id", controllers.GetTodoCategoriesByUserId)
 	todoCategoryRouter.Delete("/:id", controllers.DeleteTodoCategoryById)
 
 	towatchRouter := router.Group("/towatch")
 	towatchRouter.Get("/", controllers.GetAllTowatch)
+	todoRouter.Get("/category/:id", controllers.GetTowatchesByCategory)
 	towatchRouter.Post("/", controllers.CreateTowatch)
 	towatchRouter.Get("/:id", controllers.GetTowatchById)
 	towatchRouter.Delete("/:id", controllers.DeleteTowatchById)

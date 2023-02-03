@@ -6,16 +6,33 @@ import (
 	"github.com/DiarCode/todo-go-api/src/config/database"
 	"github.com/DiarCode/todo-go-api/src/dto"
 	"github.com/DiarCode/todo-go-api/src/helpers"
-	"github.com/DiarCode/todo-go-api/src/models"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
 
 func GetAllTodoCategories(c *fiber.Ctx) error {
+	user_param := c.Query("user")
+	if user_param == "" {
+		return c.JSON(fiber.Map{
+			"code":    400,
+			"message": "Provide user id in params",
+		})
+	}
+
+	userId, err := strconv.Atoi(user_param)
+	if err != nil {
+		return c.JSON(fiber.Map{
+			"code":    400,
+			"message": "Provide user id in params",
+		})
+	}
+
 	categories := []TodoCategory{}
-	database.DB.Model(&models.TodoCategory{}).Find(&categories)
+	query := TodoCategory{UserId: userId}
+	database.DB.Find(&categories, query)
 
 	return helpers.SendSuccessJSON(c, categories)
+
 }
 
 func GetTodoCategoryById(c *fiber.Ctx) error {
@@ -41,31 +58,6 @@ func GetTodoCategoryById(c *fiber.Ctx) error {
 	}
 
 	return helpers.SendSuccessJSON(c, category)
-}
-
-func GetTodoCategoriesByUserId(c *fiber.Ctx) error {
-	param := c.Params("id")
-	id, err := strconv.Atoi(param)
-
-	if err != nil {
-		return c.JSON(fiber.Map{
-			"code":    400,
-			"message": "Invalid ID Format",
-		})
-	}
-
-	categories := []TodoCategory{}
-	query := TodoCategory{UserId: id}
-	err = database.DB.Find(&categories, &query).Error
-
-	if err == gorm.ErrRecordNotFound {
-		return c.JSON(fiber.Map{
-			"code":    404,
-			"message": "Todo category not found",
-		})
-	}
-
-	return helpers.SendSuccessJSON(c, categories)
 }
 
 func CreateTodoCategory(c *fiber.Ctx) error {
@@ -115,6 +107,12 @@ func DeleteTodoCategoryById(c *fiber.Ctx) error {
 		})
 	}
 
+	todos := []Todo{}
+	query_todos := Todo{CategoryId: foundCategory.ID}
+
+	database.DB.Find(&todos, &query_todos)
+
+	database.DB.Delete(&todos)
 	database.DB.Delete(&foundCategory)
 	return helpers.SendSuccessJSON(c, nil)
 }

@@ -31,30 +31,17 @@ func Login(c *fiber.Ctx) error {
 		return helpers.SendMessageWithStatus(c, "Passwords does not match", 404)
 	}
 
-	expirationTime := time.Now().Add(time.Hour * 24)
+	tokenString, err := generateToken(user)
 
-	claims := &Claims{
-		ID:    user.ID,
-		Email: user.Email,
-		Name:  user.Name,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime.Unix(),
-		},
+	if err != nil {
+		return helpers.SendMessageWithStatus(c, "Auth error (token creation)", 500)
 	}
-
-	jwtKey := os.Getenv("JWT_KEY")
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString([]byte(jwtKey))
 
 	response := &TokenResponse{
 		ID:    user.ID,
 		Name:  user.Name,
 		Email: user.Email,
 		Token: tokenString,
-	}
-
-	if err != nil {
-		return helpers.SendMessageWithStatus(c, "Auth error (token creation)", 500)
 	}
 
 	return helpers.SendSuccessJSON(c, response)
@@ -85,7 +72,42 @@ func Signup(c *fiber.Ctx) error {
 		return helpers.SendMessageWithStatus(c, "User already exists", 400)
 	}
 
-	database.DB.Create(&newUser)
+	err = database.DB.Create(&newUser).Error
+	if err != nil {
+		return helpers.SendMessageWithStatus(c, err.Error(), 400)
+	}
 
-	return helpers.SendSuccessJSON(c, newUser)
+	tokenString, err := generateToken(newUser)
+
+	if err != nil {
+		return helpers.SendMessageWithStatus(c, "Auth error (token creation)", 500)
+	}
+
+	response := &TokenResponse{
+		ID:    newUser.ID,
+		Name:  newUser.Name,
+		Email: newUser.Email,
+		Token: tokenString,
+	}
+
+	return helpers.SendSuccessJSON(c, response)
+}
+
+func generateToken(user User) (string, error) {
+	expirationTime := time.Now().Add(time.Hour * 24)
+
+	claims := &Claims{
+		ID:    user.ID,
+		Email: user.Email,
+		Name:  user.Name,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: expirationTime.Unix(),
+		},
+	}
+
+	jwtKey := os.Getenv("JWT_KEY")
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString([]byte(jwtKey))
+
+	return tokenString, err
 }
