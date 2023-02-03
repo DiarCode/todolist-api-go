@@ -3,9 +3,9 @@ package controllers
 import (
 	"strconv"
 
-	"github.com/DiarCode/todo-go-api/src/config/database"
+	"github.com/DiarCode/todo-go-api/src/database"
 	"github.com/DiarCode/todo-go-api/src/dto"
-	"github.com/DiarCode/todo-go-api/src/helpers"
+	"github.com/DiarCode/todo-go-api/src/utils"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
@@ -31,7 +31,7 @@ func GetAllTowatchCategories(c *fiber.Ctx) error {
 	query := TodoCategory{UserId: userId}
 	database.DB.Find(&categories, query)
 
-	return helpers.SendSuccessJSON(c, categories)
+	return utils.SendSuccessJSON(c, categories)
 }
 
 func GetTowatchCategoryById(c *fiber.Ctx) error {
@@ -56,7 +56,7 @@ func GetTowatchCategoryById(c *fiber.Ctx) error {
 		})
 	}
 
-	return helpers.SendSuccessJSON(c, category)
+	return utils.SendSuccessJSON(c, category)
 }
 
 func CreateTowatchCategory(c *fiber.Ctx) error {
@@ -79,7 +79,7 @@ func CreateTowatchCategory(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 
-	return helpers.SendSuccessJSON(c, newCategory)
+	return utils.SendSuccessJSON(c, newCategory)
 }
 
 func DeleteTowatchCategoryById(c *fiber.Ctx) error {
@@ -107,5 +107,5 @@ func DeleteTowatchCategoryById(c *fiber.Ctx) error {
 	}
 
 	database.DB.Delete(&foundCategory)
-	return helpers.SendSuccessJSON(c, nil)
+	return utils.SendSuccessJSON(c, nil)
 }

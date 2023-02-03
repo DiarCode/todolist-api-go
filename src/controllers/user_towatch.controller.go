@@ -1,10 +1,10 @@
 package controllers
 
 import (
-	"github.com/DiarCode/todo-go-api/src/config/database"
+	"github.com/DiarCode/todo-go-api/src/database"
 	"github.com/DiarCode/todo-go-api/src/dto"
-	"github.com/DiarCode/todo-go-api/src/helpers"
 	"github.com/DiarCode/todo-go-api/src/models"
+	"github.com/DiarCode/todo-go-api/src/utils"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
@@ -29,7 +29,7 @@ func GetAllTowatchesByCategory(c *fiber.Ctx) error {
 		})
 	}
 
-	return helpers.SendSuccessJSON(c, userTowatch)
+	return utils.SendSuccessJSON(c, userTowatch)
 }
 
 func AssignTowatchToCategory(c *fiber.Ctx) error {
@@ -73,7 +73,7 @@ func AssignTowatchToCategory(c *fiber.Ctx) error {
 	towatches := userTowatch.Towatches
 	for _, t := range towatches {
 		if t.ID == towatch.ID {
-			return helpers.SendMessageWithStatus(c, "Towtach already added", 400)
+			return utils.SendMessageWithStatus(c, "Towtach already added", 400)
 		}
 	}
 
@@ -81,10 +81,10 @@ func AssignTowatchToCategory(c *fiber.Ctx) error {
 	userTowatch.Towatches = towatches
 	err = database.DB.Save(&userTowatch).Error
 	if err != nil {
-		return helpers.SendMessageWithStatus(c, "Could not add towatch", 500)
+		return utils.SendMessageWithStatus(c, "Could not add towatch", 500)
 	}
 
-	return helpers.SendSuccessJSON(c, towatches)
+	return utils.SendSuccessJSON(c, towatches)
 }
 
 func RemoveTowatchFromCategory(c *fiber.Ctx) error {
@@ -140,8 +140,8 @@ func RemoveTowatchFromCategory(c *fiber.Ctx) error {
 
 	err = database.DB.Updates(&userTowatch).Error
 	if err != nil {
-		return helpers.SendMessageWithStatus(c, err.Error(), 500)
+		return utils.SendMessageWithStatus(c, err.Error(), 500)
 	}
 
-	return helpers.SendSuccessJSON(c, userTowatch)
+	return utils.SendSuccessJSON(c, userTowatch)
 }
