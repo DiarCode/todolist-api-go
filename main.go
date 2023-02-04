@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/DiarCode/todo-go-api/src/database"
 	"github.com/DiarCode/todo-go-api/src/routes"
@@ -25,7 +26,12 @@ import (
 // 		# http://localhost:8080/api/v1/users
 
 func main() {
-	err := godotenv.Load(".env")
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		log.Fatal(err)
+	}
+	environmentPath := filepath.Join(dir, ".env")
+	err = godotenv.Load(environmentPath)
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
