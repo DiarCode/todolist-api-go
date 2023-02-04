@@ -5,6 +5,7 @@ import (
 
 	"github.com/DiarCode/todo-go-api/src/database"
 	"github.com/DiarCode/todo-go-api/src/dto"
+	"github.com/DiarCode/todo-go-api/src/models"
 	"github.com/DiarCode/todo-go-api/src/utils"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -108,4 +109,87 @@ func DeleteTowatchCategoryById(c *fiber.Ctx) error {
 
 	database.DB.Delete(&foundCategory)
 	return utils.SendSuccessJSON(c, nil)
+}
+
+func AddTowatchToCategory(c *fiber.Ctx) error {
+	json := new(dto.AddTowatchToCategoryDto)
+	if err := c.BodyParser(json); err != nil {
+		return c.JSON(fiber.Map{
+			"code":    400,
+			"message": "Invalid JSON",
+		})
+	}
+
+	towatchCategory := TowatchCategory{}
+	category_query := TowatchCategory{ID: json.TowatchCategoryId, UserId: json.UserId}
+	err := database.DB.First(&towatchCategory, &category_query).Preload("Towatches").Error
+
+	if err == gorm.ErrRecordNotFound {
+		return utils.SendMessageWithStatus(c, "Towatch category not found", 404)
+
+	}
+
+	towatch := Towatch{}
+	towatch_query := Towatch{ID: json.TowatchId}
+	err = database.DB.First(&towatch, &towatch_query).Error
+
+	if err == gorm.ErrRecordNotFound {
+		return utils.SendMessageWithStatus(c, "Towatch not found", 404)
+
+	}
+
+	towatchCategory.Towatches = append(towatchCategory.Towatches, models.Towatch(towatch))
+	err = database.DB.Save(towatchCategory).Error
+
+	if err != nil {
+		return utils.SendMessageWithStatus(c, "Couldn't add towatch to category", 404)
+	}
+
+	return utils.SendSuccessJSON(c, towatchCategory)
+}
+
+func RemoveTowatchFromCategory(c *fiber.Ctx) error {
+	json := new(dto.AddTowatchToCategoryDto)
+	if err := c.BodyParser(json); err != nil {
+		return c.JSON(fiber.Map{
+			"code":    400,
+			"message": "Invalid JSON",
+		})
+	}
+
+	towatchCategory := TowatchCategory{}
+	category_query := TowatchCategory{ID: json.TowatchCategoryId, UserId: json.UserId}
+	err := database.DB.First(&towatchCategory, &category_query).Preload("Towatches").Error
+
+	if err == gorm.ErrRecordNotFound {
+		return utils.SendMessageWithStatus(c, "Towatch category not found", 404)
+
+	}
+
+	towatch := Towatch{}
+	towatch_query := Towatch{ID: json.TowatchId}
+	err = database.DB.First(&towatch, &towatch_query).Error
+
+	if err == gorm.ErrRecordNotFound {
+		return utils.SendMessageWithStatus(c, "Towatch not found", 404)
+
+	}
+
+	towatches := towatchCategory.Towatches
+	filteredTowatches := []models.Towatch{}
+
+	for _, t := range towatches {
+		if t.ID != towatch.ID {
+			filteredTowatches = append(filteredTowatches, t)
+		}
+	}
+
+	towatchCategory.Towatches = filteredTowatches
+	err = database.DB.Save(towatchCategory).Error
+
+	if err != nil {
+		return utils.SendMessageWithStatus(c, "Couldn't remove towatch to category", 404)
+	}
+
+	return utils.SendSuccessJSON(c, towatchCategory)
 }

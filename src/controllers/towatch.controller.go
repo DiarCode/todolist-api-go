@@ -45,11 +45,11 @@ func GetTowatchesByCategory(c *fiber.Ctx) error {
 		})
 	}
 
-	userTowatch := UserTowatch{}
-	query := UserTowatch{TowatchCategoryID: categoryId, UserID: userId}
-	database.DB.Find(&userTowatch, query).Preload("Towatches")
+	towatchCategory := TowatchCategory{}
+	query := TowatchCategory{ID: categoryId, UserId: userId}
+	database.DB.Find(&towatchCategory, query).Preload("Towatches")
 
-	return utils.SendSuccessJSON(c, userTowatch.Towatches)
+	return utils.SendSuccessJSON(c, towatchCategory.Towatches)
 }
 
 func GetTowatchById(c *fiber.Ctx) error {

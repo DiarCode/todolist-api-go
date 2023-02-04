@@ -12,6 +12,5 @@ type TokenResponse models.TokenResponse
 type Claims models.Claims
 type Towatch models.Towatch
 type TowatchCategory models.TowatchCategory
-type UserTowatch models.UserTowatch
 
 //Init services
