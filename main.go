@@ -4,13 +4,11 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 
 	"github.com/DiarCode/todo-go-api/src/database"
 	"github.com/DiarCode/todo-go-api/src/routes"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/joho/godotenv"
 )
 
 // 		POSTGRES_DSN = "host=localhost port=5432 user=postgres password=password dbname=gotodo_db sslmode=disable"
@@ -26,15 +24,15 @@ import (
 // 		# http://localhost:8080/api/v1/users
 
 func main() {
-	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	if err != nil {
-		log.Fatal(err)
-	}
-	environmentPath := filepath.Join(dir, ".env")
-	err = godotenv.Load(environmentPath)
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	// dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// environmentPath := filepath.Join(dir, ".env")
+	// err = godotenv.Load(environmentPath)
+	// if err != nil {
+	// 	log.Fatal("Error loading .env file")
+	// }
 
 	app := fiber.New()
 
