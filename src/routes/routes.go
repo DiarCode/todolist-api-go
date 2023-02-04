@@ -25,10 +25,10 @@ func InitRoutes(app *fiber.App) {
 	todoCategoryRouter.Post("/", controllers.CreateTodoCategory)
 	todoCategoryRouter.Get("/:id", controllers.GetTodoCategoryById)
 	todoCategoryRouter.Delete("/:id", controllers.DeleteTodoCategoryById)
-
+	
 	towatchRouter := router.Group("/towatch")
 	towatchRouter.Get("/", controllers.GetAllTowatch)
-	todoRouter.Get("/category/:id", controllers.GetTowatchesByCategory)
+	towatchRouter.Get("/category/:id", controllers.GetTowatchesByCategory)
 	towatchRouter.Post("/", controllers.CreateTowatch)
 	towatchRouter.Get("/:id", controllers.GetTowatchById)
 	towatchRouter.Delete("/:id", controllers.DeleteTowatchById)
@@ -38,6 +38,8 @@ func InitRoutes(app *fiber.App) {
 	towatchCategoryRouter.Post("/", controllers.CreateTowatchCategory)
 	towatchCategoryRouter.Get("/:id", controllers.GetTowatchCategoryById)
 	towatchCategoryRouter.Delete("/:id", controllers.DeleteTowatchCategoryById)
+	towatchCategoryRouter.Post("/towatch/add", controllers.AddTowatchToCategory)
+	towatchCategoryRouter.Post("/towatch/remove", controllers.RemoveTowatchFromCategory)
 
 	userRouter := router.Group("/users")
 	userRouter.Get("/", controllers.GetAllUsers)
@@ -49,10 +51,6 @@ func InitRoutes(app *fiber.App) {
 	authRouter.Post("/login", controllers.Login)
 	authRouter.Post("/signup", controllers.Signup)
 
-	userTowatchRouter := router.Group("/user-towatch")
-	userTowatchRouter.Get("/", controllers.GetAllTowatchesByCategory)
-	userTowatchRouter.Post("/", controllers.AssignTowatchToCategory)
-	userTowatchRouter.Put("/", controllers.RemoveTowatchFromCategory)
 
 	log.Println("Dev")
 }

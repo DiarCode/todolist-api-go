@@ -48,7 +48,7 @@ func Login(c *fiber.Ctx) error {
 }
 
 func Signup(c *fiber.Ctx) error {
-	json := new(dto.CreateUserDto)
+	json := new(dto.SignupDto)
 	if err := c.BodyParser(json); err != nil {
 		return utils.SendMessageWithStatus(c, "Invalid JSON", 400)
 	}
