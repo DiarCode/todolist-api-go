@@ -28,8 +28,8 @@ func GetAllTowatchCategories(c *fiber.Ctx) error {
 		})
 	}
 
-	categories := []TodoCategory{}
-	query := TodoCategory{UserId: userId}
+	categories := []TowatchCategory{}
+	query := TowatchCategory{UserId: userId}
 	database.DB.Find(&categories, query)
 
 	return utils.SendSuccessJSON(c, categories)
@@ -122,7 +122,7 @@ func AddTowatchToCategory(c *fiber.Ctx) error {
 
 	towatchCategory := TowatchCategory{}
 	category_query := TowatchCategory{ID: json.TowatchCategoryId, UserId: json.UserId}
-	err := database.DB.First(&towatchCategory, &category_query).Preload("Towatches").Error
+	err := database.DB.Preload("Towatches").First(&towatchCategory, &category_query).Error
 
 	if err == gorm.ErrRecordNotFound {
 		return utils.SendMessageWithStatus(c, "Towatch category not found", 404)
@@ -136,6 +136,13 @@ func AddTowatchToCategory(c *fiber.Ctx) error {
 	if err == gorm.ErrRecordNotFound {
 		return utils.SendMessageWithStatus(c, "Towatch not found", 404)
 
+	}
+
+	towatches := towatchCategory.Towatches
+	for _, t := range towatches {
+		if t.ID == towatch.ID {
+			return utils.SendMessageWithStatus(c, "Towatch already added", 400)
+		}
 	}
 
 	towatchCategory.Towatches = append(towatchCategory.Towatches, models.Towatch(towatch))
@@ -159,7 +166,7 @@ func RemoveTowatchFromCategory(c *fiber.Ctx) error {
 
 	towatchCategory := TowatchCategory{}
 	category_query := TowatchCategory{ID: json.TowatchCategoryId, UserId: json.UserId}
-	err := database.DB.First(&towatchCategory, &category_query).Preload("Towatches").Error
+	err := database.DB.Preload("Towatches").First(&towatchCategory, &category_query).Error
 
 	if err == gorm.ErrRecordNotFound {
 		return utils.SendMessageWithStatus(c, "Towatch category not found", 404)

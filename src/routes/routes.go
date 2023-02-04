@@ -30,7 +30,7 @@ func InitRoutes(app *fiber.App) {
 
 	towatchRouter := router.Group("/towatch")
 	towatchRouter.Get("/", controllers.GetAllTowatch)
-	todoRouter.Get("/category/:id", controllers.GetTowatchesByCategory)
+	towatchRouter.Get("/category/:id", controllers.GetTowatchesByCategory)
 	towatchRouter.Post("/", controllers.CreateTowatch)
 	towatchRouter.Get("/:id", controllers.GetTowatchById)
 	towatchRouter.Delete("/:id", controllers.DeleteTowatchById)

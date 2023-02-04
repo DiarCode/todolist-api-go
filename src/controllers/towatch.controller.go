@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"log"
 	"strconv"
 
 	"github.com/DiarCode/todo-go-api/src/database"
@@ -47,8 +48,9 @@ func GetTowatchesByCategory(c *fiber.Ctx) error {
 
 	towatchCategory := TowatchCategory{}
 	query := TowatchCategory{ID: categoryId, UserId: userId}
-	database.DB.Find(&towatchCategory, query).Preload("Towatches")
+	database.DB.Preload("Towatches").First(&towatchCategory, query)
 
+	log.Println(towatchCategory.Towatches)
 	return utils.SendSuccessJSON(c, towatchCategory.Towatches)
 }
 
