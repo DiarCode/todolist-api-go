@@ -25,7 +25,7 @@ import (
 // 		# http://localhost:8080/api/v1/users
 
 func main() {
-	err := godotenv.Load()
+	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
@@ -44,6 +44,6 @@ func main() {
 	ENV_PORT := os.Getenv("PORT")
 	ENV_HOST := os.Getenv("HOST")
 	port := fmt.Sprintf("%v:%v", ENV_HOST, ENV_PORT)
-	
+
 	log.Fatal(app.Listen(port))
 }
