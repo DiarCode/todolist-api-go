@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"os"
 
 	"github.com/DiarCode/todo-go-api/src/database"
 	"github.com/DiarCode/todo-go-api/src/routes"
@@ -39,5 +41,9 @@ func main() {
 
 	database.ConnectDB()
 
-	log.Fatal(app.Listen(":8080"))
+	ENV_PORT := os.Getenv("PORT")
+	ENV_HOST := os.Getenv("HOST")
+	port := fmt.Sprintf("%v:%v", ENV_HOST, ENV_PORT)
+	
+	log.Fatal(app.Listen(port))
 }
