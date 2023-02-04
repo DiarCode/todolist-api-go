@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/DiarCode/todo-go-api/src/config/database"
-	"github.com/DiarCode/todo-go-api/src/config/routes"
+	"github.com/DiarCode/todo-go-api/src/database"
+	"github.com/DiarCode/todo-go-api/src/routes"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/joho/godotenv"
@@ -32,7 +32,7 @@ func main() {
 
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "*",
-		AllowHeaders: "Origin, Content-Type, Accept",
+		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 	}))
 
 	routes.InitRoutes(app)
