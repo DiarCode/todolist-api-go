@@ -191,8 +191,9 @@ func RemoveTowatchFromCategory(c *fiber.Ctx) error {
 		}
 	}
 
+	database.DB.Model(&towatchCategory).Association("Towatches").Clear()
 	towatchCategory.Towatches = filteredTowatches
-	err = database.DB.Save(towatchCategory).Error
+	err = database.DB.Save(&towatchCategory).Error
 
 	if err != nil {
 		return utils.SendMessageWithStatus(c, "Couldn't remove towatch to category", 404)

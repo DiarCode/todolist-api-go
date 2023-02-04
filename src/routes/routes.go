@@ -26,8 +26,6 @@ func InitRoutes(app *fiber.App) {
 	todoCategoryRouter.Get("/:id", controllers.GetTodoCategoryById)
 	todoCategoryRouter.Delete("/:id", controllers.DeleteTodoCategoryById)
 	
-
-
 	towatchRouter := router.Group("/towatch")
 	towatchRouter.Get("/", controllers.GetAllTowatch)
 	towatchRouter.Get("/category/:id", controllers.GetTowatchesByCategory)
