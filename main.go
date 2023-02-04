@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -45,9 +44,16 @@ func main() {
 
 	database.ConnectDB()
 
-	ENV_PORT := os.Getenv("PORT")
-	// HOST = localhost
-	port := fmt.Sprintf("0.0.0.0:%v", ENV_PORT)
+	log.Fatal(app.Listen(getPort()))
+}
 
-	log.Fatal(app.Listen(port))
+func getPort() string {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = ":3000"
+	} else {
+		port = ":" + port
+	}
+
+	return port
 }
