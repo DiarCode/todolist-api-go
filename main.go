@@ -46,8 +46,8 @@ func main() {
 	database.ConnectDB()
 
 	ENV_PORT := os.Getenv("PORT")
-	ENV_HOST := os.Getenv("HOST")
-	port := fmt.Sprintf("%v:%v", ENV_HOST, ENV_PORT)
+	// HOST = localhost
+	port := fmt.Sprintf("0.0.0.0:%v", ENV_PORT)
 
 	log.Fatal(app.Listen(port))
 }
