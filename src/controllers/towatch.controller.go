@@ -3,10 +3,10 @@ package controllers
 import (
 	"strconv"
 
-	"github.com/DiarCode/todo-go-api/src/config/database"
+	"github.com/DiarCode/todo-go-api/src/database"
 	"github.com/DiarCode/todo-go-api/src/dto"
-	"github.com/DiarCode/todo-go-api/src/helpers"
 	"github.com/DiarCode/todo-go-api/src/models"
+	"github.com/DiarCode/todo-go-api/src/utils"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
@@ -15,7 +15,7 @@ func GetAllTowatch(c *fiber.Ctx) error {
 	towatches := []Towatch{}
 	database.DB.Model(&models.Towatch{}).Find(&towatches)
 
-	return helpers.SendSuccessJSON(c, towatches)
+	return utils.SendSuccessJSON(c, towatches)
 }
 
 func GetTowatchesByCategory(c *fiber.Ctx) error {
@@ -45,11 +45,11 @@ func GetTowatchesByCategory(c *fiber.Ctx) error {
 		})
 	}
 
-	userTowatch := UserTowatch{}
-	query := UserTowatch{TowatchCategoryID: categoryId, UserID: userId}
-	database.DB.Find(&userTowatch, query).Preload("Towatches")
+	towatchCategory := TowatchCategory{}
+	query := TowatchCategory{ID: categoryId, UserId: userId}
+	database.DB.Preload("Towatches").First(&towatchCategory, query)
 
-	return helpers.SendSuccessJSON(c, userTowatch.Towatches)
+	return utils.SendSuccessJSON(c, towatchCategory.Towatches)
 }
 
 func GetTowatchById(c *fiber.Ctx) error {
@@ -74,7 +74,7 @@ func GetTowatchById(c *fiber.Ctx) error {
 		})
 	}
 
-	return helpers.SendSuccessJSON(c, towatch)
+	return utils.SendSuccessJSON(c, towatch)
 }
 
 func CreateTowatch(c *fiber.Ctx) error {
@@ -101,7 +101,7 @@ func CreateTowatch(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 
-	return helpers.SendSuccessJSON(c, newTowatch)
+	return utils.SendSuccessJSON(c, newTowatch)
 }
 
 func DeleteTowatchById(c *fiber.Ctx) error {
@@ -129,5 +129,5 @@ func DeleteTowatchById(c *fiber.Ctx) error {
 	}
 
 	database.DB.Delete(&foundTowatch)
-	return helpers.SendSuccessJSON(c, nil)
+	return utils.SendSuccessJSON(c, nil)
 }

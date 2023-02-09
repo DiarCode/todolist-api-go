@@ -3,9 +3,9 @@ package controllers
 import (
 	"strconv"
 
-	"github.com/DiarCode/todo-go-api/src/config/database"
+	"github.com/DiarCode/todo-go-api/src/database"
 	"github.com/DiarCode/todo-go-api/src/dto"
-	"github.com/DiarCode/todo-go-api/src/helpers"
+	"github.com/DiarCode/todo-go-api/src/utils"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
@@ -31,7 +31,7 @@ func GetAllTodoCategories(c *fiber.Ctx) error {
 	query := TodoCategory{UserId: userId}
 	database.DB.Find(&categories, query)
 
-	return helpers.SendSuccessJSON(c, categories)
+	return utils.SendSuccessJSON(c, categories)
 
 }
 
@@ -57,7 +57,7 @@ func GetTodoCategoryById(c *fiber.Ctx) error {
 		})
 	}
 
-	return helpers.SendSuccessJSON(c, category)
+	return utils.SendSuccessJSON(c, category)
 }
 
 func CreateTodoCategory(c *fiber.Ctx) error {
@@ -77,10 +77,10 @@ func CreateTodoCategory(c *fiber.Ctx) error {
 
 	err := database.DB.Create(&newCategory).Error
 	if err != nil {
-		return helpers.SendMessageWithStatus(c, err.Error(), 400)
+		return utils.SendMessageWithStatus(c, err.Error(), 400)
 	}
 
-	return helpers.SendSuccessJSON(c, newCategory)
+	return utils.SendSuccessJSON(c, newCategory)
 }
 
 func DeleteTodoCategoryById(c *fiber.Ctx) error {
@@ -114,5 +114,5 @@ func DeleteTodoCategoryById(c *fiber.Ctx) error {
 
 	database.DB.Delete(&todos)
 	database.DB.Delete(&foundCategory)
-	return helpers.SendSuccessJSON(c, nil)
+	return utils.SendSuccessJSON(c, nil)
 }

@@ -3,9 +3,9 @@ package controllers
 import (
 	"strconv"
 
-	"github.com/DiarCode/todo-go-api/src/config/database"
+	"github.com/DiarCode/todo-go-api/src/database"
 	"github.com/DiarCode/todo-go-api/src/dto"
-	"github.com/DiarCode/todo-go-api/src/helpers"
+	"github.com/DiarCode/todo-go-api/src/utils"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
@@ -16,7 +16,7 @@ func GetAllTodos(c *fiber.Ctx) error {
 	if user_param == "" {
 		todos := []Todo{}
 		database.DB.Find(&todos)
-		return helpers.SendSuccessJSON(c, todos)
+		return utils.SendSuccessJSON(c, todos)
 	}
 
 	userId, err := strconv.Atoi(user_param)
@@ -30,7 +30,7 @@ func GetAllTodos(c *fiber.Ctx) error {
 	todos := []Todo{}
 	database.DB.Where("user_id = ?", userId).Find(&todos)
 
-	return helpers.SendSuccessJSON(c, todos)
+	return utils.SendSuccessJSON(c, todos)
 }
 
 func GetTodosByCategory(c *fiber.Ctx) error {
@@ -64,7 +64,7 @@ func GetTodosByCategory(c *fiber.Ctx) error {
 	query := Todo{CategoryId: categoryId, UserId: userId}
 	database.DB.Find(&todos, query)
 
-	return helpers.SendSuccessJSON(c, todos)
+	return utils.SendSuccessJSON(c, todos)
 }
 
 func GetTodoById(c *fiber.Ctx) error {
@@ -89,7 +89,7 @@ func GetTodoById(c *fiber.Ctx) error {
 		})
 	}
 
-	return helpers.SendSuccessJSON(c, todo)
+	return utils.SendSuccessJSON(c, todo)
 }
 
 func CreateTodo(c *fiber.Ctx) error {
@@ -113,7 +113,7 @@ func CreateTodo(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 
-	return helpers.SendSuccessJSON(c, newTodo)
+	return utils.SendSuccessJSON(c, newTodo)
 }
 
 func DeleteTodoById(c *fiber.Ctx) error {
@@ -141,7 +141,7 @@ func DeleteTodoById(c *fiber.Ctx) error {
 	}
 
 	database.DB.Delete(&foundTodo)
-	return helpers.SendSuccessJSON(c, nil)
+	return utils.SendSuccessJSON(c, nil)
 }
 
 func CompleteTodoById(c *fiber.Ctx) error {
@@ -169,5 +169,5 @@ func CompleteTodoById(c *fiber.Ctx) error {
 	}
 
 	database.DB.Delete(&foundTodo)
-	return helpers.SendSuccessJSON(c, nil)
+	return utils.SendSuccessJSON(c, nil)
 }

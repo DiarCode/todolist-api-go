@@ -4,8 +4,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/DiarCode/todo-go-api/src/helpers"
 	"github.com/DiarCode/todo-go-api/src/models"
+	"github.com/DiarCode/todo-go-api/src/utils"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gofiber/fiber/v2"
 )
@@ -19,12 +19,12 @@ func AuthMiddleware() fiber.Handler {
 		authHeader := c.Get("Authorization")
 
 		if authHeader == "" {
-			return helpers.SendMessageWithStatus(c, "Autharization header not provided", 404)
+			return utils.SendMessageWithStatus(c, "Autharization header not provided", 404)
 		}
 
 		headerParts := strings.Split(authHeader, " ")
 		if len(headerParts) != 2 || headerParts[0] != "Bearer" {
-			return helpers.SendMessageWithStatus(c, "Invalid autharization header", 404)
+			return utils.SendMessageWithStatus(c, "Invalid autharization header", 404)
 		}
 
 		token := headerParts[1]
@@ -39,14 +39,14 @@ func AuthMiddleware() fiber.Handler {
 
 		if err != nil {
 			if err == jwt.ErrSignatureInvalid {
-				return helpers.SendMessageWithStatus(c, "Unautharized", 401)
+				return utils.SendMessageWithStatus(c, "Unautharized", 401)
 			}
 
-			return helpers.SendMessageWithStatus(c, err.Error(), 404)
+			return utils.SendMessageWithStatus(c, err.Error(), 404)
 		}
 
 		if !tkn.Valid {
-			return helpers.SendMessageWithStatus(c, "Unautharized", 401)
+			return utils.SendMessageWithStatus(c, "Unautharized", 401)
 		}
 
 		return nil

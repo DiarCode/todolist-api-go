@@ -28,7 +28,6 @@ func ConnectDB() {
 		&models.User{},
 		&models.Todo{},
 		&models.TodoCategory{},
-		&models.UserTowatch{},
 		&models.Towatch{},
 		&models.TowatchCategory{},
 	)

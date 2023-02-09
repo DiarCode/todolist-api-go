@@ -2,12 +2,12 @@ package main
 
 import (
 	"log"
+	"os"
 
-	"github.com/DiarCode/todo-go-api/src/config/database"
-	"github.com/DiarCode/todo-go-api/src/config/routes"
+	"github.com/DiarCode/todo-go-api/src/database"
+	"github.com/DiarCode/todo-go-api/src/routes"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/joho/godotenv"
 )
 
 // 		POSTGRES_DSN = "host=localhost port=5432 user=postgres password=password dbname=gotodo_db sslmode=disable"
@@ -23,21 +23,37 @@ import (
 // 		# http://localhost:8080/api/v1/users
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	// dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// environmentPath := filepath.Join(dir, ".env")
+	// err = godotenv.Load(environmentPath)
+	// if err != nil {
+	// 	log.Fatal("Error loading .env file")
+	// }
 
 	app := fiber.New()
 
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: "*",
-		AllowHeaders: "Origin, Content-Type, Accept",
+		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 	}))
 
 	routes.InitRoutes(app)
 
 	database.ConnectDB()
 
-	log.Fatal(app.Listen(":8080"))
+	log.Fatal(app.Listen(getPort()))
+}
+
+func getPort() string {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = ":3000"
+	} else {
+		port = ":" + port
+	}
+
+	return port
 }
