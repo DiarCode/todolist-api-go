@@ -50,7 +50,4 @@ func InitRoutes(app *fiber.App) {
 	authRouter := router.Group("/auth")
 	authRouter.Post("/login", controllers.Login)
 	authRouter.Post("/signup", controllers.Signup)
-
-
-	log.Println("Dev")
 }
