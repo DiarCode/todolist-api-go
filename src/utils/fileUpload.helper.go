@@ -7,7 +7,6 @@ import (
 	"mime/multipart"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 func UploadImage(file *multipart.FileHeader, filename string) (avatarPath string, err error) {
@@ -47,11 +46,4 @@ func GetImageByName(filename string) (fb []byte, err error) {
 	}
 
 	return fileBytes, nil
-}
-
-func DeleteFileIfExists(fp string) {
-	filename := strings.Split(fp, "https://todolist-api-go.up.railway.app/api/v1/users/avatars/")[0]
-	path := fmt.Sprintf("src/storage/avatars/%v", filename)
-	abs, _ := filepath.Abs(path)
-	os.Remove(abs)
 }
