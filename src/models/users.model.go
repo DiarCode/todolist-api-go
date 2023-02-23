@@ -12,4 +12,5 @@ type User struct {
 	Todos           []Todo         `gorm:"foreignKey:UserId; constraint:OnUpdate:CASCADE, OnDelete:CASCADE;" json:"-"`
 	TodosCategories []TodoCategory `gorm:"foreignKey:UserId; constraint:OnUpdate:CASCADE, OnDelete:CASCADE;" json:"-"`
 	CreatedAt       time.Time      `json:"created_at"`
+	Avatar          string         `json:"avatar"`
 }

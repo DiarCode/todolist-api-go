@@ -1,8 +1,6 @@
 package routes
 
 import (
-	"log"
-
 	"github.com/DiarCode/todo-go-api/src/controllers"
 	"github.com/gofiber/fiber/v2"
 )
@@ -25,7 +23,7 @@ func InitRoutes(app *fiber.App) {
 	todoCategoryRouter.Post("/", controllers.CreateTodoCategory)
 	todoCategoryRouter.Get("/:id", controllers.GetTodoCategoryById)
 	todoCategoryRouter.Delete("/:id", controllers.DeleteTodoCategoryById)
-	
+
 	towatchRouter := router.Group("/towatch")
 	towatchRouter.Get("/", controllers.GetAllTowatch)
 	towatchRouter.Get("/category/:id", controllers.GetTowatchesByCategory)
@@ -43,6 +41,8 @@ func InitRoutes(app *fiber.App) {
 
 	userRouter := router.Group("/users")
 	userRouter.Get("/", controllers.GetAllUsers)
+	userRouter.Get("/avatars/:name", controllers.GetAvatarByFilename)
+	userRouter.Post("/:id/avatars", controllers.SaveAvatarByUserId)
 	userRouter.Post("/", controllers.CreateUser)
 	userRouter.Get("/:id", controllers.GetUserById)
 	userRouter.Delete("/:id", controllers.DeleteUserById)
