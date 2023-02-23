@@ -131,14 +131,8 @@ func SaveAvatarByUserId(c *fiber.Ctx) error {
 		return utils.SendMessageWithStatus(c, "User not found", 404)
 	}
 
-	if user.Avatar != "" {
-		utils.DeleteFileIfExists(user.Avatar)
-	}
-
 	fileExt := filepath.Ext(reqFile.Filename)
 	filename := fmt.Sprintf("%v%v", id, fileExt)
-
-	utils.DeleteFileIfExists(filename)
 
 	avatarPath, err := utils.UploadImage(reqFile, filename)
 
