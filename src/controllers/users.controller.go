@@ -1,6 +1,11 @@
 package controllers
 
 import (
+	"fmt"
+	_ "image/jpeg"
+	_ "image/png"
+	"path/filepath"
+
 	"strconv"
 
 	"github.com/DiarCode/todo-go-api/src/database"
@@ -89,4 +94,60 @@ func DeleteUserById(c *fiber.Ctx) error {
 	database.DB.Model(&user).Association("Todos").Delete()
 	database.DB.Delete(&user)
 	return utils.SendSuccessJSON(c, nil)
+}
+
+func GetAvatarByFilename(c *fiber.Ctx) error {
+	name := c.Params("name")
+
+	fileBytes, err := utils.GetImageByName(name)
+
+	if err != nil {
+		return utils.SendMessageWithStatus(c, err.Error(), 400)
+	}
+
+	c.Set("Content-Type", "application/octet-stream")
+	return c.Send(fileBytes)
+}
+
+func SaveAvatarByUserId(c *fiber.Ctx) error {
+	paramId := c.Params("id")
+	reqFile, err := c.FormFile("avatar")
+
+	if err != nil {
+		return utils.SendMessageWithStatus(c, "Request file error", 400)
+	}
+
+	id, err := strconv.Atoi(paramId)
+
+	if err != nil {
+		return utils.SendMessageWithStatus(c, "Invalid ID Format", 400)
+	}
+
+	user := User{}
+	query := User{ID: id}
+	err = database.DB.First(&user, &query).Error
+
+	if err == gorm.ErrRecordNotFound {
+		return utils.SendMessageWithStatus(c, "User not found", 404)
+	}
+
+	if user.Avatar != "" {
+		utils.DeleteFileIfExists(user.Avatar)
+	}
+
+	fileExt := filepath.Ext(reqFile.Filename)
+	filename := fmt.Sprintf("%v%v", id, fileExt)
+
+	utils.DeleteFileIfExists(filename)
+
+	avatarPath, err := utils.UploadImage(reqFile, filename)
+
+	if err != nil {
+		return utils.SendMessageWithStatus(c, err.Error(), 400)
+	}
+
+	user.Avatar = avatarPath
+	database.DB.Save(&user)
+
+	return utils.SendSuccessJSON(c, avatarPath)
 }
