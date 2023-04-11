@@ -21,10 +21,7 @@ func GetAllTodos(c *fiber.Ctx) error {
 
 	userId, err := strconv.Atoi(user_param)
 	if err != nil {
-		return c.JSON(fiber.Map{
-			"code":    400,
-			"message": "Provide user id in proper params",
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "Provide proper user id")
 	}
 
 	todos := []Todo{}
@@ -38,26 +35,18 @@ func GetTodosByCategory(c *fiber.Ctx) error {
 	user_param := c.Query("user")
 
 	if user_param == "" {
-		return c.JSON(fiber.Map{
-			"code":    400,
-			"message": "Provide user id in params",
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "Provide user id in params")
 	}
 
 	userId, err := strconv.Atoi(user_param)
 	if err != nil {
-		return c.JSON(fiber.Map{
-			"code":    400,
-			"message": "Provide user id in proper params",
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "Provide proper user id")
+
 	}
 
 	categoryId, err := strconv.Atoi(category_param)
 	if err != nil {
-		return c.JSON(fiber.Map{
-			"code":    400,
-			"message": "Provide category id in proper format",
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "Provide proper category id")
 	}
 
 	todos := []Todo{}
@@ -72,10 +61,7 @@ func GetTodoById(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(param)
 
 	if err != nil {
-		return c.JSON(fiber.Map{
-			"code":    400,
-			"message": "Invalid ID Format",
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid id")
 	}
 
 	todo := Todo{}
@@ -83,22 +69,17 @@ func GetTodoById(c *fiber.Ctx) error {
 	err = database.DB.First(&todo, &query).Error
 
 	if err == gorm.ErrRecordNotFound {
-		return c.JSON(fiber.Map{
-			"code":    404,
-			"message": "Todo not found",
-		})
+		return fiber.NewError(fiber.StatusNotFound, "Todo not found")
 	}
 
 	return utils.SendSuccessJSON(c, todo)
 }
 
 func CreateTodo(c *fiber.Ctx) error {
-	json := new(dto.CreateTodoDto)
-	if err := c.BodyParser(json); err != nil {
-		return c.JSON(fiber.Map{
-			"code":    400,
-			"message": "Invalid JSON",
-		})
+	var json dto.CreateTodoDto
+	err := c.BodyParser(&json)
+	if err != nil || (json == dto.CreateTodoDto{}) {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid body")
 	}
 
 	newTodo := Todo{
@@ -108,9 +89,9 @@ func CreateTodo(c *fiber.Ctx) error {
 		CategoryId: json.CategoryId,
 	}
 
-	err := database.DB.Create(&newTodo).Error
+	err = database.DB.Create(&newTodo).Error
 	if err != nil {
-		return c.SendStatus(fiber.StatusBadRequest)
+		return fiber.NewError(fiber.StatusInternalServerError, "Could not create todo")
 	}
 
 	return utils.SendSuccessJSON(c, newTodo)
@@ -121,10 +102,7 @@ func DeleteTodoById(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(param)
 
 	if err != nil {
-		return c.JSON(fiber.Map{
-			"code":    400,
-			"message": "Invalid ID format",
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "Provide proper id")
 	}
 
 	foundTodo := Todo{}
@@ -134,10 +112,7 @@ func DeleteTodoById(c *fiber.Ctx) error {
 
 	err = database.DB.First(&foundTodo, &query).Error
 	if err == gorm.ErrRecordNotFound {
-		return c.JSON(fiber.Map{
-			"code":    400,
-			"message": "Todo not found",
-		})
+		return fiber.NewError(fiber.StatusNotFound, "Todo not found")
 	}
 
 	database.DB.Delete(&foundTodo)
@@ -149,10 +124,7 @@ func CompleteTodoById(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(param)
 
 	if err != nil {
-		return c.JSON(fiber.Map{
-			"code":    400,
-			"message": "Invalid ID format",
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "Provide proper id")
 	}
 
 	foundTodo := Todo{}
@@ -162,10 +134,7 @@ func CompleteTodoById(c *fiber.Ctx) error {
 
 	err = database.DB.First(&foundTodo, &query).Error
 	if err == gorm.ErrRecordNotFound {
-		return c.JSON(fiber.Map{
-			"code":    400,
-			"message": "Todo not found",
-		})
+		return fiber.NewError(fiber.StatusNotFound, "Todo not found")
 	}
 
 	database.DB.Delete(&foundTodo)
