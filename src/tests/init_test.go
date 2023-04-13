@@ -34,7 +34,7 @@ func TestMain(m *testing.M) {
 
 func connectMockDatabase() {
 	var err error
-	dsn := "host=localhost user=postgres password=postgres dbname=todoom_test port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+	dsn := os.Getenv("TEST_DATABASE_DSN")
 	database.DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
