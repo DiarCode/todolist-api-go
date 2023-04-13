@@ -14,27 +14,29 @@ import (
 )
 
 func Login(c *fiber.Ctx) error {
-	credentials := new(dto.LoginDto)
-	if err := c.BodyParser(credentials); err != nil {
-		return utils.SendMessageWithStatus(c, "Invalid JSON", 400)
+	var credentials dto.LoginDto
+	err := c.BodyParser(&credentials)
+
+	if err != nil || (credentials == dto.LoginDto{}) {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid body")
 	}
 
 	user := User{}
 	query := User{Email: credentials.Email}
-	err := database.DB.First(&user, &query).Error
+	err = database.DB.First(&user, &query).Error
 
 	if err == gorm.ErrRecordNotFound {
-		return utils.SendMessageWithStatus(c, "User not found", 404)
+		return fiber.NewError(fiber.StatusNotFound, "User not found")
 	}
 
 	if !utils.ComparePasswords(user.Password, credentials.Password) {
-		return utils.SendMessageWithStatus(c, "Passwords does not match", 404)
-	}
+		return fiber.NewError(fiber.StatusBadRequest, "Passwords does not match")
 
+	}
 	tokenString, err := generateToken(user)
 
 	if err != nil {
-		return utils.SendMessageWithStatus(c, "Auth error (token creation)", 500)
+		return fiber.NewError(fiber.StatusInternalServerError, "Auth error (token creation)")
 	}
 
 	response := &TokenResponse{
@@ -48,15 +50,17 @@ func Login(c *fiber.Ctx) error {
 }
 
 func Signup(c *fiber.Ctx) error {
-	json := new(dto.SignupDto)
-	if err := c.BodyParser(json); err != nil {
-		return utils.SendMessageWithStatus(c, "Invalid JSON", 400)
+	var json dto.SignupDto
+	err := c.BodyParser(&json)
+
+	if err != nil || (json == dto.SignupDto{}) {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid Body")
 	}
 
 	password := utils.HashPassword([]byte(json.Password))
-	err := checkmail.ValidateFormat(json.Email)
+	err = checkmail.ValidateFormat(json.Email)
 	if err != nil {
-		return utils.SendMessageWithStatus(c, "Invalid Email Address", 400)
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid Email Address")
 	}
 
 	newUser := User{
@@ -69,18 +73,18 @@ func Signup(c *fiber.Ctx) error {
 	query := User{Email: json.Email}
 	err = database.DB.First(&found, &query).Error
 	if err != gorm.ErrRecordNotFound {
-		return utils.SendMessageWithStatus(c, "User already exists", 400)
+		return fiber.NewError(fiber.StatusBadRequest, "User already exists")
 	}
 
 	err = database.DB.Create(&newUser).Error
 	if err != nil {
-		return utils.SendMessageWithStatus(c, err.Error(), 400)
+		return fiber.NewError(fiber.StatusInternalServerError, "Could not create new user")
 	}
 
 	tokenString, err := generateToken(newUser)
 
 	if err != nil {
-		return utils.SendMessageWithStatus(c, "Auth error (token creation)", 500)
+		return fiber.NewError(fiber.StatusInternalServerError, "Auth error (token creation)")
 	}
 
 	response := &TokenResponse{

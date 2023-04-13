@@ -14,18 +14,12 @@ import (
 func GetAllTowatchCategories(c *fiber.Ctx) error {
 	user_param := c.Query("user")
 	if user_param == "" {
-		return c.JSON(fiber.Map{
-			"code":    400,
-			"message": "Provide user id in params",
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "Provide user id in params")
 	}
 
 	userId, err := strconv.Atoi(user_param)
 	if err != nil {
-		return c.JSON(fiber.Map{
-			"code":    400,
-			"message": "Provide user id in params",
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "Provide proper user id in params")
 	}
 
 	categories := []TowatchCategory{}
@@ -40,10 +34,7 @@ func GetTowatchCategoryById(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(param)
 
 	if err != nil {
-		return c.JSON(fiber.Map{
-			"code":    400,
-			"message": "Invalid ID Format",
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "Provide proper category id in params")
 	}
 
 	category := TowatchCategory{}
@@ -51,22 +42,17 @@ func GetTowatchCategoryById(c *fiber.Ctx) error {
 	err = database.DB.First(&category, &query).Error
 
 	if err == gorm.ErrRecordNotFound {
-		return c.JSON(fiber.Map{
-			"code":    404,
-			"message": "Towatch category not found",
-		})
+		return fiber.NewError(fiber.StatusNotFound, "Towatch category not found")
 	}
 
 	return utils.SendSuccessJSON(c, category)
 }
 
 func CreateTowatchCategory(c *fiber.Ctx) error {
-	json := new(dto.CreateTowatchCategoryDto)
-	if err := c.BodyParser(json); err != nil {
-		return c.JSON(fiber.Map{
-			"code":    400,
-			"message": "Invalid JSON",
-		})
+	var json dto.CreateTowatchCategoryDto
+	err := c.BodyParser(&json)
+	if err != nil || (json == dto.CreateTowatchCategoryDto{}) {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid body")
 	}
 
 	newCategory := TowatchCategory{
@@ -75,9 +61,9 @@ func CreateTowatchCategory(c *fiber.Ctx) error {
 		UserId: json.UserId,
 	}
 
-	err := database.DB.Create(&newCategory).Error
+	err = database.DB.Create(&newCategory).Error
 	if err != nil {
-		return c.SendStatus(fiber.StatusBadRequest)
+		return fiber.NewError(fiber.StatusInternalServerError, "Could not create a towatch category")
 	}
 
 	return utils.SendSuccessJSON(c, newCategory)
@@ -88,10 +74,7 @@ func DeleteTowatchCategoryById(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(param)
 
 	if err != nil {
-		return c.JSON(fiber.Map{
-			"code":    400,
-			"message": "Invalid ID format",
-		})
+		return fiber.NewError(fiber.StatusBadRequest, "Provide proper towatch id in params")
 	}
 
 	foundCategory := TowatchCategory{}
@@ -101,10 +84,7 @@ func DeleteTowatchCategoryById(c *fiber.Ctx) error {
 
 	err = database.DB.First(&foundCategory, &query).Error
 	if err == gorm.ErrRecordNotFound {
-		return c.JSON(fiber.Map{
-			"code":    400,
-			"message": "Towatch category not found",
-		})
+		return fiber.NewError(fiber.StatusNotFound, "Towatch category not found")
 	}
 
 	database.DB.Delete(&foundCategory)
@@ -112,21 +92,19 @@ func DeleteTowatchCategoryById(c *fiber.Ctx) error {
 }
 
 func AddTowatchToCategory(c *fiber.Ctx) error {
-	json := new(dto.AddTowatchToCategoryDto)
-	if err := c.BodyParser(json); err != nil {
-		return c.JSON(fiber.Map{
-			"code":    400,
-			"message": "Invalid JSON",
-		})
+	var json dto.AddTowatchToCategoryDto
+	err := c.BodyParser(json)
+	if err != nil || (json == dto.AddTowatchToCategoryDto{}) {
+		return fiber.NewError(fiber.StatusBadRequest, "Invlalid body")
+
 	}
 
 	towatchCategory := TowatchCategory{}
 	category_query := TowatchCategory{ID: json.TowatchCategoryId, UserId: json.UserId}
-	err := database.DB.Preload("Towatches").First(&towatchCategory, &category_query).Error
+	err = database.DB.Preload("Towatches").First(&towatchCategory, &category_query).Error
 
 	if err == gorm.ErrRecordNotFound {
-		return utils.SendMessageWithStatus(c, "Towatch category not found", 404)
-
+		return fiber.NewError(fiber.StatusNotFound, "Towatch category not found")
 	}
 
 	towatch := Towatch{}
@@ -134,14 +112,14 @@ func AddTowatchToCategory(c *fiber.Ctx) error {
 	err = database.DB.First(&towatch, &towatch_query).Error
 
 	if err == gorm.ErrRecordNotFound {
-		return utils.SendMessageWithStatus(c, "Towatch not found", 404)
+		return fiber.NewError(fiber.StatusNotFound, "Towatch not found")
 
 	}
 
 	towatches := towatchCategory.Towatches
 	for _, t := range towatches {
 		if t.ID == towatch.ID {
-			return utils.SendMessageWithStatus(c, "Towatch already added", 400)
+			return fiber.NewError(fiber.StatusBadRequest, "Towatch already added")
 		}
 	}
 
@@ -149,28 +127,25 @@ func AddTowatchToCategory(c *fiber.Ctx) error {
 	err = database.DB.Save(towatchCategory).Error
 
 	if err != nil {
-		return utils.SendMessageWithStatus(c, "Couldn't add towatch to category", 404)
+		return fiber.NewError(fiber.StatusInternalServerError, "Couldn't add towatch to category")
 	}
 
 	return utils.SendSuccessJSON(c, towatchCategory)
 }
 
 func RemoveTowatchFromCategory(c *fiber.Ctx) error {
-	json := new(dto.AddTowatchToCategoryDto)
-	if err := c.BodyParser(json); err != nil {
-		return c.JSON(fiber.Map{
-			"code":    400,
-			"message": "Invalid JSON",
-		})
+	var json dto.AddTowatchToCategoryDto
+	err := c.BodyParser(json)
+	if err != nil || (json == dto.AddTowatchToCategoryDto{}) {
+		return fiber.NewError(fiber.StatusBadRequest, "Invlalid body")
 	}
 
 	towatchCategory := TowatchCategory{}
 	category_query := TowatchCategory{ID: json.TowatchCategoryId, UserId: json.UserId}
-	err := database.DB.Preload("Towatches").First(&towatchCategory, &category_query).Error
+	err = database.DB.Preload("Towatches").First(&towatchCategory, &category_query).Error
 
 	if err == gorm.ErrRecordNotFound {
-		return utils.SendMessageWithStatus(c, "Towatch category not found", 404)
-
+		return fiber.NewError(fiber.StatusNotFound, "Towatch category not found")
 	}
 
 	towatch := Towatch{}
@@ -178,8 +153,7 @@ func RemoveTowatchFromCategory(c *fiber.Ctx) error {
 	err = database.DB.First(&towatch, &towatch_query).Error
 
 	if err == gorm.ErrRecordNotFound {
-		return utils.SendMessageWithStatus(c, "Towatch not found", 404)
-
+		return fiber.NewError(fiber.StatusNotFound, "Towatch not found")
 	}
 
 	towatches := towatchCategory.Towatches
@@ -196,7 +170,7 @@ func RemoveTowatchFromCategory(c *fiber.Ctx) error {
 	err = database.DB.Save(&towatchCategory).Error
 
 	if err != nil {
-		return utils.SendMessageWithStatus(c, "Couldn't remove towatch to category", 404)
+		return fiber.NewError(fiber.StatusInternalServerError, "Couldn't remove towatch to category")
 	}
 
 	return utils.SendSuccessJSON(c, towatchCategory)
