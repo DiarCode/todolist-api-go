@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"testing"
@@ -34,7 +35,13 @@ func TestMain(m *testing.M) {
 
 func connectMockDatabase() {
 	var err error
-	dsn := os.Getenv("TEST_DATABASE_DSN")
+	dsn := fmt.Sprintf(
+		"host=db user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Shanghai",
+		os.Getenv("TEST_DB_USER"),
+		os.Getenv("TEST_DB_PASSWORD"),
+		os.Getenv("TEST_DB_NAME"),
+		os.Getenv("TEST_DB_PORT"),
+	)
 	database.DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
